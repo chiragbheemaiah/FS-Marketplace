@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-function Navbar({ auth, user }) {
+function Navbar({ auth, user, admin }) {
     return (
         <nav className="navbar navbar-expand-lg bg-body-tertiary">
             <div className="container-fluid">
@@ -20,6 +20,12 @@ function Navbar({ auth, user }) {
                         <li className="nav-item">
                             <Link className="nav-link" to="/about">About</Link>
                         </li>
+                        {   admin &&
+                            auth &&
+                            <li className="nav-item">
+                                <Link className="nav-link" aria-current="page" to="/admin">Admin Console</Link>
+                            </li>
+                        }
                     </ul>
                     <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
                         {/* Right side items */}

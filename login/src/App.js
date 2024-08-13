@@ -13,26 +13,28 @@ import SignOut from './pages/SignOut';
 import Accounts from './pages/Accounts';
 import UpdateItem from './pages/UpdateItem';
 import Profile from './pages/Profile';
+import Admin from './pages/Admin';
 
 function App() {
   const [auth, setAuth] = useState(false);
   const [user, setUser] = useState('');
+  const [admin, setAdmin] = useState(false);
   return (
-    // TODO: Account management for users.
-    // TODO: Email Verification
-    // TODO: Search and Filter Capabilities
-    // TODO: Implement an Admin Portal.
-    // TODO: Pagination
+    // TODO: Define a data model.
     // TODO: Render description in a textarea.
+    // TODO: Implement an Admin Portal.
+    // TODO: Search and Filter Capabilities
+    // TODO: Pagination
+    // TODO: Email Verification
     // STRETCH: Implement auto deletion after a week.
     // STRETCH: Chat
     // STRETCH: ML Verification
     // EXTRA STRETCH: Bidding System
     <div className='App'>
-      <Navbar auth={auth} user={user}/>
+      <Navbar auth={auth} user={user} admin={admin}/>
       <Routes>
-        <Route path='/' element={<Home auth={auth} setAuth={setAuth} setUser={setUser}/>} />
-        {/* <Route path='/login' element={<LoginForm auth={auth} setAuth={setAuth} setUser={setUser} />}/> */}
+        <Route path='/' element={<Home auth={auth} setAuth={setAuth} setUser={setUser} setAdmin={setAdmin}/>} />
+        <Route path='/admin' element={<Admin auth={auth} setAuth={setAuth} admin={admin} />}/>
         <Route path='/registration' element={<RegistrationForm auth={auth}/>}/>
         <Route path='/about' element={<About/>}/>
         <Route path='/shopping'>

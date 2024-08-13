@@ -7,6 +7,18 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
+async function getAllUsers(username) {
+    const query = `SELECT * FROM users`;
+    return new Promise((resolve, reject) => {
+        db.all(query, [username], (error, rows) => {
+            if (error) {
+                return reject(error);
+            }
+            resolve(rows);
+        });
+    });
+}
+
 function insertUser(user){
     const { username , password, email, name } = user;
     db.run(
@@ -58,6 +70,20 @@ async function deleteUser(username) {
         });
     });
 }
+app.get('/', async (req, res) => {
+    res.status(200).send('Auth Server Initialized!')
+})
+
+app.get('/users', async (req, res) => {
+    try{
+        const users = await getAllUsers();
+        console.log('All users retrieved!');
+        res.status(200).send(users);
+    }catch(error){
+        console.error(error);
+        res.status(500).send("Internal Server Error")
+    }
+})
 
 app.get('/users/:id', async (req, res) => {
     try{
@@ -104,6 +130,10 @@ app.post('/users/login', async (req, res) => {
         const isPasswordValid = await bcrypt.compare(req.body.password, user[0].password)
         if(!isPasswordValid){
             return res.status(401).send('Invalid Password')
+        }
+        if(req.body.username === 'ADMIN'){
+            console.log('Admin logged in');
+            return res.status(200).send('ADMIN');
         }
         console.log('User login successful');
         res.status(200).send(user);

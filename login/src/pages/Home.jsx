@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Homepage from '../assets/Homepage.svg';
 import LoginForm from './LoginForm';
 
-function Home({ auth, setAuth, setUser }) {
+function Home({ auth, setAuth, setUser, setAdmin }) {
     return (
         <div className="container-fluid">
             <div className="row vh-100">
@@ -33,7 +33,7 @@ function Home({ auth, setAuth, setUser }) {
                             </div>
                         </div>
                         <div className="col-3 d-flex flex-column align-items-center bg-light">
-                            <LoginForm auth={auth} setAuth={setAuth} setUser={setUser} />
+                            <LoginForm auth={auth} setAuth={setAuth} setUser={setUser} setAdmin={setAdmin}/>
                         </div>
                     </>
                 )}

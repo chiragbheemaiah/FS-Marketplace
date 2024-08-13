@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from 'axios';
 import { Link, useNavigate } from "react-router-dom";
 
-function LoginForm({setAuth, setUser}) {
+function LoginForm({setAuth, setUser, setAdmin}) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showAlert, setShowAlert] = useState(true);
@@ -16,7 +16,15 @@ function LoginForm({setAuth, setUser}) {
         
         try {
             const response = await axios.post('http://localhost:3001/users/login', user);
-            if (response.status === 200) {
+            console.log(response)
+            if(response.status === 200 && response.data === "ADMIN"){
+                console.log('Admin', response.data);
+                setAdmin(true);
+                setAuth(true);
+                setUser(username);
+                navigate('/admin');
+            }
+            else if (response.status === 200) {
                 const username = response.data[0].username;
                 setAuth(true);
                 setUser(username)
@@ -28,6 +36,7 @@ function LoginForm({setAuth, setUser}) {
                 setPassword('');
             }
         } catch (error) {
+            console.error('Error', error);
             setAuth(false);
             setShowAlert(false);
             setUsername('');
