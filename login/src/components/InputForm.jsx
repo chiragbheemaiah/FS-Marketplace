@@ -5,17 +5,31 @@ import { useNavigate } from "react-router-dom";
 function InputForm({auth, user, header}){
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [images, setImages] = useState('');
+    const [images, setImages] = useState([]);
     const [contact, setContact] = useState('');
     const [price, setPrice] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log(title)
         // TODO: Implement logic to resize image, store image and generate path.
-        const product = { title, description, images, contact, price, user};
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('contact', contact);
+        formData.append('price', price);
+        formData.append('user', user);
+        images.forEach((image) => {
+            formData.append('images', image); // All files are appended under the same field name
+        });
+        
         try {
-            const response = await axios.post('http://localhost:3002/products', product);
+            const response = await axios.post('http://localhost:3002/products', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             if (response.status === 200) {
                 const action = 'CREATE';
                 navigate('/accounts', {state: action});
@@ -23,7 +37,7 @@ function InputForm({auth, user, header}){
         } catch (error) {
             setTitle('');
             setDescription('');
-            setImages('');
+            setImages([]);
             setContact('');
             setPrice('');
         }
@@ -48,7 +62,7 @@ function InputForm({auth, user, header}){
                     <div className="mb-3">
                         <label htmlFor="description" className="form-label text-start w-100">Description:</label>
                         <input
-                            type="textarea"
+                            type="text"
                             className="form-control"
                             id="description"
                             value={description}
@@ -63,11 +77,23 @@ function InputForm({auth, user, header}){
                             type="file"
                             className="form-control"
                             id="images"
-                            value={images}
                             accept="image/*"
-                            onChange={(e) => setImages(e.target.value)}
+                            onChange={(e) => setImages([...e.target.files])}
                             multiple
                         />
+                        <div>
+                         {images.length > 0 && (
+                            <div>
+                                <ul>
+                                    {Array.from(images).map((image, index) => (
+                                    <li key={index}>
+                                        <p>File name: {image.name}</p>
+                                    </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                        </div>
                     </div>
                     <div className="mb-3">
                         <label htmlFor="contact" className="form-label text-start w-100">Contact Information:</label>

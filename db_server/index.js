@@ -2,6 +2,23 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { MongoClient, ObjectId } = require('mongodb');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs').promises
+
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, '../login/public/images/'); 
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname)); 
+    }
+});
+const upload = multer({ storage: storage });
 
 // Database Connection
 const DATABASE_NAME = 'FS'
@@ -48,9 +65,22 @@ async function getProductsForUser(client, userId){
     return products;
 }
 
-const app = express();
-app.use(cors());
-app.use(bodyParser.json());
+async function getExistingProduct(client, productId){
+    const existingProduct =  await client.db(DATABASE_NAME).collection(COLLECTION_NAME).findOne({"_id" : productId});
+    return existingProduct;
+}
+
+async function deleteExistingImages(images){
+    const filePath = path.join(__dirname, '..', 'login', 'public', 'images');
+    try{
+        for(const image of images){
+            const imagePath = path.join(filePath, image)
+            await fs.unlink(imagePath);
+        }
+    }catch(err){
+        console.error("Error deleting files: ", err);
+    }
+}
 
 app.get('/', (req, res) => {
     res.send('DB Server setup and running!');
@@ -83,10 +113,19 @@ app.get('/products/:id', async (req, res) => {
     }
 })
 
-app.post('/products', async (req, res) => {
+app.post('/products', upload.array('images', 10), async (req, res) => {
     try{
         const mongoClient = await connectDatabase();
-        const product = req.body;
+        const { title, description, contact, price, user } = req.body;
+        const images = req.files.map(file => file.filename);
+        const product = {
+            title,
+            description,
+            contact,
+            price,
+            user,
+            images, 
+        };
         await insertProduct(mongoClient, product);
         mongoClient.close();
         res.status(200).send({});
@@ -96,12 +135,29 @@ app.post('/products', async (req, res) => {
     }
 
 })
-app.put('/products/:id', async (req, res) => {
+app.put('/products/:id', upload.array('images', 10), async (req, res) => {
     try{
         const mongoClient = await connectDatabase();
-        let updatedProduct = req.body;
+        const { title, description, contact, price, user } = req.body;
+        let images = '';
         const id = new ObjectId(req.params.id);
-        console.log(req.params);
+        if(req.files.length !== 0){
+            const existingProduct = await getExistingProduct(mongoClient, id);
+            await deleteExistingImages(existingProduct.images);
+            images = req.files.map(file => file.filename);
+        }
+        else{
+            images = req.body.images;
+        }
+        const updatedProduct = {
+            title,
+            description,
+            contact,
+            price,
+            user,
+            images, 
+        };
+        // console.log('Updated Products', updatedProduct);
         await updateProductById(mongoClient, id, updatedProduct)
         mongoClient.close();
         res.status(200).send({});
@@ -115,6 +171,8 @@ app.delete('/products/:id', async (req, res) => {
         const mongoClient = await connectDatabase();
         const id = new ObjectId(req.params.id);
         // console.log(id);
+        const existingProduct = await getExistingProduct(mongoClient, id);
+        await deleteExistingImages(existingProduct.images);
         await deleteProductById(mongoClient, id)
         mongoClient.close();
         res.status(200).send({});

@@ -58,6 +58,7 @@ function Shopping({auth}){
                                 products.map((product) => (
                                 <div className="col" key={product._id}>
                                     <div className="card h-100">
+                                        <img src={`images/${product.images[0]}`} class="card-img-top" alt="Product Image" />
                                         <div className="card-body">
                                             <h5 className="card-title">{product.title}</h5>
                                             <p className="card-text">{product.description}</p>

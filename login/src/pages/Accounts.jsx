@@ -76,7 +76,7 @@ function Accounts({ auth, user }) {
                                         <div className="card h-100 d-flex flex-row w-100">
                                             {/* Image Column */}
                                             <div className="col-3 d-flex align-items-center justify-content-center">
-                                                <img src={product.image} className="card-img-left img-fluid" alt={product.title} />
+                                                <img src={`images/${product.images[0]}`} className="card-img-left img-fluid" alt={product.title} />
                                             </div>
                                             {/* Details Column */}
                                             <div className="col-6">

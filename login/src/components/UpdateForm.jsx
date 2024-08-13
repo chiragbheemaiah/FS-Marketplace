@@ -5,26 +5,41 @@ import { useNavigate } from "react-router-dom";
 function UpdateForm({auth, user, header, product}){
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [images, setImages] = useState('');
+    const [images, setImages] = useState([]);
     const [contact, setContact] = useState('');
     const [price, setPrice] = useState('');
+    const [updatedImages, setUpdatedImages] = useState(false);
     const productId = product._id;
     const navigate = useNavigate();
 
     useEffect(() => {
         setTitle(product.title);
         setDescription(product.description);
+        
         setImages(product.images);
         setContact(product.contact);
         setPrice(product.price);
     }, []);
-
+    
     const handleSubmit = async (e) => {
+        console.log('Images', images);
         e.preventDefault();
-        const productUpdated = {productId, title, description, images, contact, user, price};
-        // console.log('Product from form', productUpdated)
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('contact', contact);
+        formData.append('price', price);
+        formData.append('user', user);
+        console.log(images)
+        images.forEach((image) => {
+            formData.append('images', image); // All files are appended under the same field name
+        });
         try {
-            const response = await axios.put(`http://localhost:3002/products/${productId}`, productUpdated);
+            const response = await axios.put(`http://localhost:3002/products/${productId}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             if (response.status === 200) {
                 const action = 'UPDATE';
                 navigate('/accounts', {state: action});
@@ -32,7 +47,7 @@ function UpdateForm({auth, user, header, product}){
         } catch (error) {
             setTitle('');
             setDescription('');
-            setImages('');
+            setImages([]);
             setContact('');
             setPrice('');
         }
@@ -71,11 +86,35 @@ function UpdateForm({auth, user, header, product}){
                             type="file"
                             className="form-control"
                             id="images"
-                            value={images}
-                            accept="images/*"
-                            onChange={(e) => setImages(e.target.value)}
+                            accept="image/*"
+                            onChange={(e) => {
+                                setUpdatedImages(true)
+                                setImages([...e.target.files])
+                                }
+                            }
                             multiple
                         />
+                        <div>
+                         {images.length > 0 && (
+                            <div>
+                                <ul>
+                                    {
+                                        updatedImages ? Array.from(images).map((image, index) => (
+                                            <li key={index}>
+                                                <p>File name: {image.name}</p>
+                                            </li>
+                                            )) :
+                                            images.map((image, index) => (
+                                                <li key={index}>
+                                                    <p>File name: {image}</p>
+                                                </li>
+                                                ))           
+                                    }
+                                </ul>
+                            </div>
+                        )}
+                        </div>
+                        
                     </div>
                     <div className="mb-3">
                         <label htmlFor="contact" className="form-label text-start w-100">Contact Information:</label>

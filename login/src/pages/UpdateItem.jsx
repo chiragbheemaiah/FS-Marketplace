@@ -11,7 +11,7 @@ function UpdateItem({auth, user}){
     }, []);
     const location = useLocation();
     const product = location.state;
-    // console.log('Product from updateItem', product);
+    console.log('Product from updateItem', product);
     return (
         <UpdateForm auth={auth} user={user} header={'Update Listing'} product={product}/>
     );
