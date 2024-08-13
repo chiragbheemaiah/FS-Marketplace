@@ -15,7 +15,7 @@ function LoginForm({setAuth, setUser}) {
         const user = { username, password };
         
         try {
-            const response = await axios.post('http://localhost:3001/login', user);
+            const response = await axios.post('http://localhost:3001/users/login', user);
             if (response.status === 200) {
                 const username = response.data[0].username;
                 setAuth(true);

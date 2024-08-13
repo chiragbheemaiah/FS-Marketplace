@@ -47,7 +47,7 @@ function RegistrationForm({auth}) {
         const user = { name, email, username, password };
         
         try {
-            const response = await axios.post('http://localhost:3001/registration', user);
+            const response = await axios.post('http://localhost:3001/users/registration', user);
             
             if (response.status === 200) {
                 navigate('/');

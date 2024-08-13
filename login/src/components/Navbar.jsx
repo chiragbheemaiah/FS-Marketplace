@@ -32,6 +32,12 @@ function Navbar({ auth, user }) {
                         {
                             auth &&
                             <li className="nav-item">
+                                <Link className="nav-link" to={`/profile/${user}`}>My Account</Link>
+                            </li>
+                        }
+                        {
+                            auth &&
+                            <li className="nav-item">
                                 <Link className="nav-link" to="/accounts">Manage Listings</Link>
                             </li>
                         }

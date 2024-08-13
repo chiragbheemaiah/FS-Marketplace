@@ -12,22 +12,22 @@ import { useState } from 'react';
 import SignOut from './pages/SignOut';
 import Accounts from './pages/Accounts';
 import UpdateItem from './pages/UpdateItem';
+import Profile from './pages/Profile';
 
 function App() {
   const [auth, setAuth] = useState(false);
   const [user, setUser] = useState('');
   return (
-    // TODO: Figure out Git
     // TODO: Account management for users.
     // TODO: Email Verification
     // TODO: Search and Filter Capabilities
     // TODO: Implement an Admin Portal.
     // TODO: Pagination
     // TODO: Render description in a textarea.
-    // TODO: Image uploads and rendering
     // STRETCH: Implement auto deletion after a week.
     // STRETCH: Chat
     // STRETCH: ML Verification
+    // EXTRA STRETCH: Bidding System
     <div className='App'>
       <Navbar auth={auth} user={user}/>
       <Routes>
@@ -44,6 +44,7 @@ function App() {
           <Route index element={<Accounts auth={auth} user={user}/>}/>
           <Route path=':id' element={<UpdateItem auth={auth} user={user}/>}/>
         </Route>
+        <Route path='/profile/:id' element={<Profile auth={auth} setAuth={setAuth} user={user}/>} />
         <Route path='/signout' element={<SignOut auth={auth} setAuth={setAuth}/>}/>
         <Route path='*' element={<NotFound/>}/>
       </Routes>

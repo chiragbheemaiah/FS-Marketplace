@@ -33,7 +33,45 @@ async function getUsers(username) {
         });
     });
 }
-app.post('/registration', async (req, res) => {
+
+async function updateUser(username, updatedUser) {
+    const { name, password } = updatedUser;
+    const query = `UPDATE users SET name = (?), password = (?) WHERE username = (?)`;
+    return new Promise((resolve, reject) => {
+        db.run(query, [name, password, username], function (error) {
+            if (error) {
+                return reject(error);
+            }
+            resolve(this.changes); 
+        });
+    });
+}
+
+async function deleteUser(username) {
+    const query = `DELETE FROM users WHERE username = (?)`;
+    return new Promise((resolve, reject) => {
+        db.run(query, [username], function (error) {
+            if (error) {
+                return reject(error);
+            }
+            resolve(this.changes); 
+        });
+    });
+}
+
+app.get('/users/:id', async (req, res) => {
+    try{
+        const username = req.params.id;
+        const existingUser = await getUsers(username);
+        console.log('Existing user retrieved');
+        res.status(200).send(existingUser[0]);
+    }catch(error){
+        console.error(error);
+        res.status(500).send("Internal Server Error")
+    }
+})
+
+app.post('/users/registration', async (req, res) => {
     try{
         const existingUser = await getUsers(req.body.username);
         if(existingUser.length !== 0){
@@ -48,6 +86,7 @@ app.post('/registration', async (req, res) => {
         }
         // console.log(user);
         insertUser(user);
+        console.log('New user registered');
         res.sendStatus(200);          
     }
     catch(error){
@@ -56,7 +95,7 @@ app.post('/registration', async (req, res) => {
     }
 })
 
-app.post('/login', async (req, res) => {
+app.post('/users/login', async (req, res) => {
     try{
         const user = await getUsers(req.body.username);
         if(user.length === 0){
@@ -66,9 +105,46 @@ app.post('/login', async (req, res) => {
         if(!isPasswordValid){
             return res.status(401).send('Invalid Password')
         }
+        console.log('User login successful');
         res.status(200).send(user);
     }
     catch(error){
+        console.error(error);
+        res.status(500).send("Internal Server Error")
+    }
+})
+
+app.put('/users/:id', async (req, res) => {
+    try{
+        const username = req.params.id;
+        const updatedUser = req.body;
+        updatedUser.password = await bcrypt.hash(req.body.password, 10);
+        const affectedRows = await updateUser(username, updatedUser);
+        if (affectedRows > 0) {
+            console.log(`Successfully updated ${affectedRows} row(s).`);
+        } else {
+            console.log('No rows updated. User may not exist.');
+        }
+        res.status(200).send('Successful updation');
+    }catch(error){
+        console.error(error);
+        res.status(500).send("Internal Server Error")
+    }
+
+    }
+)
+
+app.delete('/users/:id', async (req, res) => {
+    try {
+        const username = req.params.id;
+        const affectedRows = await deleteUser(username);
+        if (affectedRows > 0) {
+            console.log(`Successfully deleted ${affectedRows} row(s).`);
+        } else {
+            console.log('No rows deleted. User may not exist.');
+        }
+        res.status(200).send('Deletion successful');
+    }catch(error){
         console.error(error);
         res.status(500).send("Internal Server Error")
     }
