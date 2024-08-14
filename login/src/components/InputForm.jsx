@@ -8,6 +8,9 @@ function InputForm({auth, user, header}){
     const [images, setImages] = useState([]);
     const [contact, setContact] = useState('');
     const [price, setPrice] = useState('');
+    const [category, setCategory] = useState('');
+    const [address, setAddress] = useState('')
+
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -20,6 +23,8 @@ function InputForm({auth, user, header}){
         formData.append('contact', contact);
         formData.append('price', price);
         formData.append('user', user);
+        formData.append('category', category);
+        formData.append('address', address);
         images.forEach((image) => {
             formData.append('images', image); // All files are appended under the same field name
         });
@@ -40,6 +45,8 @@ function InputForm({auth, user, header}){
             setImages([]);
             setContact('');
             setPrice('');
+            setCategory('');
+            setAddress('');
         }
     };
 
@@ -61,15 +68,16 @@ function InputForm({auth, user, header}){
                     </div>
                     <div className="mb-3">
                         <label htmlFor="description" className="form-label text-start w-100">Description:</label>
-                        <input
-                            type="text"
+                        <textarea
                             className="form-control"
                             id="description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
+                            rows="4" 
                             required
-                        />
+                        ></textarea>
                     </div>
+
                     {/* TODO: Store images and update state accordingly. Run a script to generate a link which is stored in the database */}
                     <div className="mb-3">
                         <label htmlFor="images" className="form-label text-start w-100">Images:</label>
@@ -117,6 +125,37 @@ function InputForm({auth, user, header}){
                             required
                         />
                     </div>
+                    <div className="mb-3">
+                        <label htmlFor="address" className="form-label text-start w-100">Pickup Address:</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="address"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="category" className="form-label text-start w-100">Category:</label>
+                        <select
+                            className="form-select"
+                            id="category"
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}  
+                            required
+                        >
+                            <option value="">Select Category</option>
+                            <option value="apartment_listing">Apartment Listings</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="furniture">Furniture or Household goods</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="food">Food</option>
+                            <option value="books">Books</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
                     <button type="submit" className="btn btn-primary w-100">Submit</button>
                 </form>
             </div>

@@ -69,8 +69,16 @@ function Item({ auth }) {
                                     <p>{product.contact}</p>
                                 </div>
                                 <div className="col-md-6">
-                                    <h4>Posted by:</h4>
+                                    <h4>Pickup Address:</h4>
+                                    <p>{product.address}</p>
+                                </div>
+                                <div className="col-md-6">
+                                    <h4>Posted By:</h4>
                                     <p>{product.user}</p>
+                                </div>
+                                <div className="col-md-6">
+                                    <h4>Category:</h4>
+                                    <p>{product.category}</p>
                                 </div>
                             </div>
 

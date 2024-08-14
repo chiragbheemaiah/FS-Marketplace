@@ -116,7 +116,7 @@ app.get('/products/:id', async (req, res) => {
 app.post('/products', upload.array('images', 10), async (req, res) => {
     try{
         const mongoClient = await connectDatabase();
-        const { title, description, contact, price, user } = req.body;
+        const { title, description, contact, price, user, category, address } = req.body;
         const images = req.files.map(file => file.filename);
         const product = {
             title,
@@ -125,6 +125,8 @@ app.post('/products', upload.array('images', 10), async (req, res) => {
             price,
             user,
             images, 
+            category,
+            address
         };
         await insertProduct(mongoClient, product);
         mongoClient.close();
@@ -138,8 +140,8 @@ app.post('/products', upload.array('images', 10), async (req, res) => {
 app.put('/products/:id', upload.array('images', 10), async (req, res) => {
     try{
         const mongoClient = await connectDatabase();
-        const { title, description, contact, price, user } = req.body;
-        let images = '';
+        const { title, description, contact, price, user, category, address } = req.body;
+        let images = [];
         const id = new ObjectId(req.params.id);
         if(req.files.length !== 0){
             const existingProduct = await getExistingProduct(mongoClient, id);
@@ -147,7 +149,7 @@ app.put('/products/:id', upload.array('images', 10), async (req, res) => {
             images = req.files.map(file => file.filename);
         }
         else{
-            images = req.body.images;
+            images.push(req.body.images);
         }
         const updatedProduct = {
             title,
@@ -156,11 +158,13 @@ app.put('/products/:id', upload.array('images', 10), async (req, res) => {
             price,
             user,
             images, 
+            category,
+            address
         };
         // console.log('Updated Products', updatedProduct);
         await updateProductById(mongoClient, id, updatedProduct)
         mongoClient.close();
-        res.status(200).send({});
+        res.status(200).send({ message: 'Product updated successfully', updatedProduct });
     }catch(error){
         console.error(error);
         res.status(400).send(error)        

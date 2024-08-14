@@ -26,6 +26,7 @@ function Shopping({auth}){
     }, [auth, navigate]);
 
     // TODO: If Back pressed auth needs to false
+    console.log(products)
     return (
         <>
             <div className="container p-3">
@@ -64,7 +65,7 @@ function Shopping({auth}){
                                             <p className="card-text">{product.description}</p>
                                             <p className="card-text">Contact: {product.contact}</p>
                                             <p className="card-text">Price: {product.price}</p>
-                                            <p className="card-text">Posted By: {product.user}</p>
+                                            <p className="card-text">Address: {product.address}</p>
                                             <Link className="btn btn-outline-primary" to={`/shopping/${product._id}`} state={ product }>View</Link>
                                         </div>
                                     </div>

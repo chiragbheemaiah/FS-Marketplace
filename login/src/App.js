@@ -20,16 +20,19 @@ function App() {
   const [user, setUser] = useState('');
   const [admin, setAdmin] = useState(false);
   return (
-    // TODO: Define a data model.
-    // TODO: Render description in a textarea.
-    // TODO: Implement an Admin Portal.
+    // TODO: Add categories and address. - DONE
+    // TODO: Render description in a textarea. - DONE
+    // TODO: Email Verification
+    // TODO: Forgot password
     // TODO: Search and Filter Capabilities
     // TODO: Pagination
-    // TODO: Email Verification
+    // TODO: Define a data model.
+    // TODO: Refactor for maitainability
+    // TODO: Responsive design
     // STRETCH: Implement auto deletion after a week.
-    // STRETCH: Chat
+    // STRETCH: Chat with payment initiation by the seller
+    // STRETCH: Payment integration using Stripe
     // STRETCH: ML Verification
-    // EXTRA STRETCH: Bidding System
     <div className='App'>
       <Navbar auth={auth} user={user} admin={admin}/>
       <Routes>

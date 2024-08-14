@@ -83,6 +83,8 @@ function Accounts({ auth, user }) {
                                                 <div className="card-body">
                                                     <h5 className="card-title">{product.title}</h5>
                                                     <p className="card-text">Price: {product.price}</p>
+                                                    <p className="card-text">Pickup Address: {product.address}</p>
+                                                    <p className="card-text">Category: {product.category}</p>
                                                 </div>
                                             </div>
                                             {/* Buttons Column */}

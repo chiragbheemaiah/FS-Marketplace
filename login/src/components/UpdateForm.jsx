@@ -8,6 +8,8 @@ function UpdateForm({auth, user, header, product}){
     const [images, setImages] = useState([]);
     const [contact, setContact] = useState('');
     const [price, setPrice] = useState('');
+    const [category, setCategory] = useState('');
+    const [address, setAddress] = useState('')
     const [updatedImages, setUpdatedImages] = useState(false);
     const productId = product._id;
     const navigate = useNavigate();
@@ -15,7 +17,8 @@ function UpdateForm({auth, user, header, product}){
     useEffect(() => {
         setTitle(product.title);
         setDescription(product.description);
-        
+        setCategory(product.category);
+        setAddress(product.address);
         setImages(product.images);
         setContact(product.contact);
         setPrice(product.price);
@@ -30,9 +33,11 @@ function UpdateForm({auth, user, header, product}){
         formData.append('contact', contact);
         formData.append('price', price);
         formData.append('user', user);
-        console.log(images)
+        formData.append('category', category);
+        formData.append('address', address);
+        // console.log(images)
         images.forEach((image) => {
-            formData.append('images', image); // All files are appended under the same field name
+            formData.append('images', image);
         });
         try {
             const response = await axios.put(`http://localhost:3002/products/${productId}`, formData, {
@@ -50,6 +55,8 @@ function UpdateForm({auth, user, header, product}){
             setImages([]);
             setContact('');
             setPrice('');
+            setCategory('');
+            setAddress('');
         }
     };
 
@@ -71,14 +78,14 @@ function UpdateForm({auth, user, header, product}){
                     </div>
                     <div className="mb-3">
                         <label htmlFor="description" className="form-label text-start w-100">Description:</label>
-                        <input
-                            type="textarea"
+                        <textarea
                             className="form-control"
                             id="description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
+                            rows="4" 
                             required
-                        />
+                        ></textarea>
                     </div>
                     <div className="mb-3">
                         <label htmlFor="images" className="form-label text-start w-100">Images:</label>
@@ -137,6 +144,36 @@ function UpdateForm({auth, user, header, product}){
                             onChange={(e) => setPrice(e.target.value)}
                             required
                         />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="address" className="form-label text-start w-100">Pickup Address:</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="address"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="category" className="form-label text-start w-100">Category:</label>
+                        <select
+                            className="form-select"
+                            id="category"
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}  
+                            required
+                        >
+                            {/* <option value="">Select Category</option> */}
+                            <option value="apartment_listing">Apartment Listings</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="furniture">Furniture or Household goods</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="food">Food</option>
+                            <option value="books">Books</option>
+                            <option value="other">Other</option>
+                        </select>
                     </div>
                     <button type="submit" className="btn btn-primary w-100">Submit</button>
                 </form>
