@@ -1,11 +1,31 @@
 const express = require('express');
+const dotenv = require('dotenv');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const db = require('./db')
+const sendVerificationEmail = require('./mailer');
+const session = require('express-session');
+dotenv.config();
+
 const app = express();
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000', // Replace with your frontend origin
+    credentials: true,  // Allow credentials (cookies, authorization headers, etc.)
+}));
+
+app.use(session({
+    secret: process.env.SESSION_KEY,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true, // Ensures the cookie is sent only over HTTP(S), not client JavaScript
+        secure: false,  // Set to true if your app is served over HTTPS (false for local dev)
+        maxAge: 1000 * 60 * 15 // 15 minutes
+    }
+}));
+
 
 async function getAllUsers(username) {
     const query = `SELECT * FROM users`;
@@ -72,6 +92,7 @@ async function deleteUser(username) {
 }
 app.get('/', async (req, res) => {
     res.status(200).send('Auth Server Initialized!')
+    console.log(req.sessionID)
 })
 
 app.get('/users', async (req, res) => {
@@ -98,28 +119,71 @@ app.get('/users/:id', async (req, res) => {
 })
 
 app.post('/users/registration', async (req, res) => {
+    console.log(req.sessionID)
     try{
         const existingUser = await getUsers(req.body.username);
         if(existingUser.length !== 0){
             console.log('Username Taken');
             return res.status(401).send('Username is taken, please try again!')
         }
+
         const user = {
             username: req.body.username,
             password : await bcrypt.hash(req.body.password, 10),
             email: req.body.email,
             name: req.body.name
         }
-        // console.log(user);
-        insertUser(user);
-        console.log('New user registered');
-        res.sendStatus(200);          
+
+        const secret = Math.floor(100000 + Math.random() * 900000);
+
+        const result = await sendVerificationEmail(req.body.email, secret);
+
+        if(result === 'ERROR'){
+            return res.status(500).send('Internal Server Error');
+        }
+        
+
+        // Store user in session
+        req.session.user = user;
+
+        // Store verification code in session. 
+        req.session.secret = secret;
+        console.log(req.session.secret);
+        // console.log('New user registered');
+        res.status(200).send('Registration Initiated');          
     }
     catch(error){
         console.error(error);
         res.status(500).send("Internal Server Error")
     }
 })
+
+app.post('/users/verification', async (req, res) => {
+    console.log(req.sessionID)
+    console.log(req.session.secret);
+    console.log(req.session.user);
+    console.log(req.body.secret);
+    // get secret for the user based on session
+    try{
+        if(req.body.secret == req.session.secret){
+            insertUser(req.session.user);
+            console.log('Auth Successful')
+            return res.status(200).send("Authentication Successful");
+        }else{
+            res.status(401).send('Invalid Credentials')
+        }
+    
+        // console.log(user);
+        // insertUser(user);
+        // console.log('New user registered');
+        // res.status(200).send(user);          
+    }
+    catch(error){
+        console.error(error);
+        res.status(500).send("Internal Server Error")
+    }
+})
+
 
 app.post('/users/login', async (req, res) => {
     try{
