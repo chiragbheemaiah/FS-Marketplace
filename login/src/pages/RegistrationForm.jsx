@@ -47,10 +47,11 @@ function RegistrationForm({auth}) {
         const user = { name, email, username, password };
         
         try {
-            const response = await axios.post('http://localhost:3001/users/registration', user);
+            console.log(user);
+            const response = await axios.post('http://localhost:3001/users/registration', user,  { withCredentials: true });
             
             if (response.status === 200) {
-                navigate('/');
+                navigate('/verification', {state : {verify: true, email: user.email}});
             } 
             else {
                 setErrors({ general: 'An error occurred, please try again.' });

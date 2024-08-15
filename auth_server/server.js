@@ -4,8 +4,11 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const db = require('./db')
-const sendVerificationEmail = require('./mailer');
+const sendMail = require('./mailer');
 const session = require('express-session');
+const crypto = require('crypto');
+const sendEmail = require('./mailer');
+
 dotenv.config();
 
 const app = express();
@@ -90,6 +93,24 @@ async function deleteUser(username) {
         });
     });
 }
+
+function generateTempPassword() {
+    return crypto.randomBytes(16).toString('hex');
+}
+
+async function updatePassword(username, hashedPassword) {
+    const query = `UPDATE users SET password = ? WHERE username = ?`;
+    return new Promise((resolve, reject) => {
+        db.run(query, [hashedPassword, username], function(error) {
+            if (error) {
+                return reject(error);
+            }
+            resolve(this.changes); 
+        });
+    });
+}
+
+
 app.get('/', async (req, res) => {
     res.status(200).send('Auth Server Initialized!')
     console.log(req.sessionID)
@@ -135,8 +156,9 @@ app.post('/users/registration', async (req, res) => {
         }
 
         const secret = Math.floor(100000 + Math.random() * 900000);
-
-        const result = await sendVerificationEmail(req.body.email, secret);
+        
+        // TODO: Uncomment this.
+        const result = await sendEmail(req.body.email, secret, 'VERIFY');
 
         if(result === 'ERROR'){
             return res.status(500).send('Internal Server Error');
@@ -204,6 +226,39 @@ app.post('/users/login', async (req, res) => {
     }
     catch(error){
         console.error(error);
+        res.status(500).send("Internal Server Error")
+    }
+})
+
+app.post('/users/forgetpassword', async (req, res) => {
+    try{
+        console.log(req.body.email);
+        const username = req.body.email.split('@')[0];
+        const existingUser = await getUsers(username);
+        if(existingUser.length === 0){
+            console.log('No user found');
+            return res.status(404).send('No account found with this email.')
+        }
+        const tempPassword = generateTempPassword();
+        console.log('Temp Password', tempPassword);
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+        const affectedRows = await updatePassword(username, hashedPassword);
+        if (affectedRows > 0) {
+            console.log(`Successfully updated ${affectedRows} row(s).`);
+        } else {
+            console.log('No rows updated. User may not exist.');
+        }
+
+        // TODO: Uncomment this. Modify function to accept type of message.
+        // const result = await sendEmail(req.body.email, tempPassword, 'PASSWORD_RESET');
+        
+        // if(result === 'ERROR'){
+        //         return res.status(500).send('Internal Server Error');
+        //     }
+        res.status(200).send('Password reset, instructions sent');        
+    }
+    catch(error){
+        console.error('Error while resetting password', error);
         res.status(500).send("Internal Server Error")
     }
 })

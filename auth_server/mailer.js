@@ -2,26 +2,32 @@ const dotenv = require('dotenv');
 const nodemailer = require("nodemailer");
 
 dotenv.config();
+
 const EMAIL = "fsmarketplace0@gmail.com";
 
 const transporter = nodemailer.createTransport({
     service: "Gmail",
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
     auth: {
-      user: EMAIL,
-      pass: process.env.GMAIL_PASSKEY,
+        user: EMAIL,
+        pass: process.env.GMAIL_PASSKEY,
     },
 });
 
-async function sendVerificationEmail(receiverEmail, secret) {
-    const mailOptions = {
+async function sendEmail(receiverEmail, data, messageType) {
+    let mailOptions = {
         from: EMAIL,
         to: receiverEmail,
-        subject: "Verify your account",
-        text: `Verification Key: ${secret}`,
     };
+
+    if(messageType === 'VERIFY'){
+        mailOptions.subject = "Verify your account";
+        mailOptions.text = `Verification Key: ${data}`;
+    } else if(messageType === 'PASSWORD_RESET'){
+        mailOptions.subject = "Instructions to reset your password";
+        mailOptions.text = `Your temporary password is ${data}. Please log in and change your password asap.`;
+    } else {
+        throw new Error("Invalid messageType provided.");
+    }
 
     try {
         const info = await transporter.sendMail(mailOptions);
@@ -33,4 +39,4 @@ async function sendVerificationEmail(receiverEmail, secret) {
     }
 }
 
-module.exports = sendVerificationEmail;
+module.exports = sendEmail;

@@ -2,3 +2,4 @@ auth_server/node_modules/
 db_server/node_modules/
 login/node_modules/
 login/public/images/*
+.env

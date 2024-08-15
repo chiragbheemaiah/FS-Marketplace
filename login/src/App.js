@@ -14,14 +14,14 @@ import Accounts from './pages/Accounts';
 import UpdateItem from './pages/UpdateItem';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import Verification from './pages/Verification';
+import ForgetPassword from './pages/ForgetPassword';
 
 function App() {
   const [auth, setAuth] = useState(false);
   const [user, setUser] = useState('');
   const [admin, setAdmin] = useState(false);
   return (
-    // TODO: Add categories and address. - DONE
-    // TODO: Render description in a textarea. - DONE
     // TODO: Email Verification
     // TODO: Forgot password
     // TODO: Search and Filter Capabilities
@@ -39,7 +39,9 @@ function App() {
         <Route path='/' element={<Home auth={auth} setAuth={setAuth} setUser={setUser} setAdmin={setAdmin}/>} />
         <Route path='/admin' element={<Admin auth={auth} setAuth={setAuth} admin={admin} />}/>
         <Route path='/registration' element={<RegistrationForm auth={auth}/>}/>
+        <Route path='/verification' element={<Verification />}/>
         <Route path='/about' element={<About/>}/>
+        <Route path='/forgetpassword' element={<ForgetPassword />}/>
         <Route path='/shopping'>
           <Route index element={<Shopping auth={auth}/>}/>
           <Route path=':id' element={<Item auth={auth}/>}/>

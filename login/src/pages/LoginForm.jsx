@@ -80,7 +80,8 @@ function LoginForm({setAuth, setUser, setAdmin}) {
                     </div>
                     <button type="submit" className="btn btn-primary w-100">Login</button>
                 </form>
-                <Link className="btn btn-outline-dark w-40 mt-4" to='/registration'>New? Register Here!</Link>
+                <p className="mt-3"><Link className="text-dark mt-4" to='/forgetpassword'>Forgot Password?</Link></p>
+                <Link className="btn btn-outline-dark w-40 mt-3" to='/registration'>New? Register Here!</Link>
             </div>
         </div>
     );
